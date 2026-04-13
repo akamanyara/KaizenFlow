@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Home Page
+{% endblock %}
+
+{% block body %}
+
+<div class="container mt-5 text-center">
+    <h1 class="display-4 text-warning">{{ nickname }}</h1>
+    <h3 class="text-white mb-4">Level: {{ level }}</h3>
+
+    <p class="lead text-light">{{ curr_xp }} / {{ req_xp }} XP</p>
+
+    <div class="progress mb-4" style="height: 30px; background-color: #333;">
+        <div class="progress-bar bg-light-blue progress-bar-striped progress-bar-animated" 
+             role="progressbar" 
+             style="width: {{ xp_percent }}%;" 
+             aria-valuenow="{{ xp_percent }}" 
+             aria-valuemin="0" 
+             aria-valuemax="100">
+             {{ xp_percent }}%
+        </div>
+    </div>
+</div>
+
+{% endblock %}

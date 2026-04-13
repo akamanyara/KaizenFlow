@@ -1,0 +1,13 @@
+@font-face {
+    font-family: "NovaRound";
+    src: "NovaRound-Regular.ttf";
+}
+
+* {
+    font-family: "NovaRound";
+    color:aliceblue;
+}
+
+body {
+    background-color: #011c38;
+}

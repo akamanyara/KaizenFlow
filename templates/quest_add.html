@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Add Quest
+{% endblock %}
+
+{% block body %}
+    <form action="/add_quest" method="post">
+        <div class="mb-3">
+            <input name="title" type="text" class="form-control mx-auto w-auto" placeholder="Title..">
+        </div>
+        <div class="mb-3">
+            <input name="description" type="text" class="form-control mx-auto w-auto" placeholder="Description..">
+        </div>
+        <div class="mb-3">
+            <select class="form-control mx-auto w-auto" name="difficulty" required>
+                <option disabled selected value="">Difficulty</option>
+                <option value="EASY">EASY</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="HARD">HARD</option>
+                <option value="BOSS">BOSS</option>
+            </select>
+        </div> 
+        <button type="submit" class="btn btn-primary d-block mx-auto">Add</button>
+    </form>
+{% endblock %}
