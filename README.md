@@ -57,7 +57,8 @@ If you want to run this project on your local machine, follow these steps:
 
 The app is continuously being improved. Upcoming features include:
 
-* [ ] Adding Deadlines to Quests.
+* [x] Adding Deadlines to Quests.
+* [x] Adding Habit Tracker.
 * [ ] "Quick Notes" module for sudden ideas.
 * [ ] Specialized tracking modules (Budget Tracker, Fit Tracker (Gym split and Diet shopping list))
 

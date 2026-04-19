@@ -35,6 +35,11 @@
                             <input type="hidden" name="quest_id" value="{{ quest['id'] }}">
                             <button type="submit" class="btn btn-outline-success w-100">✔ Mark As Done</button>
                         </form>
+                        
+                        <form action="/delete_quest" method="post" class="mt-2">
+                            <input type="hidden" name="quest_id" value="{{ quest['id'] }}">
+                            <button type="submit" class="btn btn-outline-danger w-100">🗑️ Delete Quest</button>
+                        </form>
                     </div>
                 </div>
             </div>

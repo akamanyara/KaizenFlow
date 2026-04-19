@@ -2,7 +2,7 @@ from flask import Flask, session, render_template, request, redirect, flash
 from flask_session import Session
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from utilities import login_required, calculate_xp_and_lvl, quest_earned_xp, calculate_and_apply_penalty, BASE, MULTIPLIER
 
@@ -17,7 +17,7 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-
+#! -- LOGIN, SETTINGS, DASHBOARD SECTION -- 
 @app.route("/register", methods=["GET", "POST"])
 def register():
     ''' Register user '''
@@ -175,6 +175,7 @@ def index():
     return render_template("index.html", nickname=user_nickname, level=user_level, curr_xp=user_xp, req_xp=req_xp, xp_percent=xp_percent)
 
 
+#!-- QUESTS SECTION -- 
 @app.route("/quests", methods=["GET", "POST"])
 @login_required
 def quests():
@@ -245,6 +246,29 @@ def complete_quest():
             conn.close()
 
     flash(f"Quest completed! You earned {earned_xp}xp!", "success")
+    return redirect("/quests")
+
+
+@app.route("/delete_quest", methods=["POST"])
+@login_required
+def delete_quest():
+    ''' Completly remove quest from data base '''
+    
+    quest_id = request.form.get("quest_id")
+    if not quest_id:
+        flash("Couldn't find the quest", "warning")
+        return redirect("/quests")
+    
+    # Delete quest from database
+    conn = sqlite3.connect("tracker.db")
+    db = conn.cursor()
+    
+    db.execute("DELETE FROM quests WHERE id = ? AND user_id = ?", (quest_id, session["user_id"]))
+    
+    conn.commit()
+    conn.close()
+    
+    flash("Successfully removed quest", "success")
     return redirect("/quests")
     
 
@@ -336,6 +360,139 @@ def deadlines():
     return render_template("deadlines.html", quests=formatted_quests, today_date=today_date)
 
 
+#!-- HABITS SECTION -- 
+@app.route("/habits")
+@login_required
+def habit_tracker():
+    '''Track the users daily habits'''
+    todays_date = datetime.now().date().isoformat()
+    
+    conn = sqlite3.connect("tracker.db")
+    conn.row_factory = sqlite3.Row
+    db = conn.cursor()
+    
+    # Get the habits data
+    db.execute(""" SELECT ha.id, ha.title, ha.streak, history.completion_date 
+                   FROM habits ha
+                   LEFT JOIN habits_history history
+                   ON ha.id = history.habit_id AND history.completion_date = ?
+                   WHERE ha.user_id = ?
+               """, (todays_date, session["user_id"]))
+
+    habits = db.fetchall()
+    
+    conn.close()
+    
+    return render_template("habits.html", habits=habits)
+
+
+@app.route("/add_habit", methods=["POST"])
+@login_required
+def add_habit():
+    
+    title = request.form.get("title")
+    if not title:
+        flash("Invalid habit name.", "danger")
+        return redirect("/habits")
+    
+    # add the habit into the database
+    conn = sqlite3.connect("tracker.db")
+    db = conn.cursor()
+    
+    db.execute("INSERT INTO habits (user_id, title) VALUES (?, ?)", (session["user_id"], title))
+    
+    conn.commit()
+    conn.close()
+        
+    flash("Added habit successfully", "success")
+    return redirect("/habits")
+
+
+@app.route("/delete_habit", methods=["POST"])
+@login_required
+def delete_habit():
+    pass
+
+
+@app.route("/complete_habit", methods=["POST"])
+@login_required
+def complete_habit():
+    '''Complete the habit task, reward the user and update database'''
+    
+    # get habit id
+    habit_id = request.form.get("habit_id")
+    if not habit_id:
+        flash("Invalid habid id", "danger")
+        return redirect("/habits")
+
+    # get todays and yesterdays date
+    todays_date = datetime.now().date().isoformat()
+    yesterdays_date = (datetime.now() - timedelta(days=1)).date().isoformat()
+    
+    try: 
+        # check for the streak and it's continuation
+        conn = sqlite3.connect("tracker.db")
+        conn.row_factory = sqlite3.Row
+        db = conn.cursor()
+        
+        db.execute("SELECT streak FROM habits WHERE user_id = ? AND id = ?", (session["user_id"], habit_id))
+        habit_data = db.fetchone()
+        if habit_data:
+            users_streak = habit_data["streak"]
+        else:
+            users_streak = 0
+        
+        db.execute("SELECT completion_date FROM habits_history WHERE habit_id = ? AND completion_date = ?", (habit_id, yesterdays_date))
+        yesterdays_data = db.fetchone()
+        if yesterdays_data:
+            users_streak += 1
+        else:
+            users_streak = 1
+
+        # update the database
+        db.execute("INSERT INTO habits_history (habit_id, completion_date) VALUES (?, ?)", (habit_id, todays_date))
+        db.execute("UPDATE habits SET streak = ? WHERE user_id = ? AND id = ?", (users_streak, session["user_id"], habit_id))
+        
+        # get users data for rewards
+        db.execute("SELECT level, current_xp FROM users WHERE id = ?", (session["user_id"],))
+        user_data = db.fetchone()
+        if user_data:
+            level = user_data["level"]
+            xp = user_data["current_xp"]
+                  
+            # reward the player with streak bonus
+            base_xp = 10
+            
+            if users_streak >= 21:
+                bonus_multiplier = 2.0
+            elif users_streak >= 14:
+                bonus_multiplier = 1.75
+            elif users_streak >= 7:
+                bonus_multiplier = 1.5
+            elif users_streak >= 3:
+                bonus_multiplier = 1.1
+            else: 
+                bonus_multiplier = 1.0
+                
+            earned_xp = int(base_xp * bonus_multiplier)
+            new_xp, new_lvl = calculate_xp_and_lvl(xp, level, earned_xp)
+
+            # update the users stats
+            db.execute("UPDATE users SET level = ?, current_xp = ? WHERE id = ?", (new_lvl, new_xp, session["user_id"]))
+        
+        conn.commit()
+        flash(f"Habit completed, you earned {earned_xp} XP! Streak: {users_streak}", "success")
+    
+    except sqlite3.IntegrityError:
+        flash("You already completed this habit today!", "warning")
+        
+    finally:
+        if conn:
+            conn.close()
+    
+    return redirect("/habits")
+    
+    
 # Server starter
 if __name__ == "__main__":
     app.run(debug=True)

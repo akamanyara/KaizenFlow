@@ -19,3 +19,19 @@ CREATE TABLE quests (
     penalty_applied BOOLEAN DEFAULT 0,
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
+
+CREATE TABLE habits (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    streak INTEGER DEFAULT 0,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
+CREATE TABLE habits_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    habit_id INTEGER NOT NULL,
+    completion_date TEXT NOT NULL,
+    FOREIGN KEY(habit_id) REFERENCES habits(id),
+    UNIQUE(habit_id, completion_date)
+);

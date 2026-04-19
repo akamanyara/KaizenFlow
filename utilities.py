@@ -23,8 +23,8 @@ def login_required(f):
 def quest_earned_xp(diff):
     ''' Calculate the xp value for quest difficulty '''
     match diff:
-        case "EASY": value = 10
-        case "MEDIUM": value = 30
+        case "EASY": value = 20
+        case "MEDIUM": value = 40
         case "HARD": value = 80
         case "BOSS": value = 200
         case _: value = 0
