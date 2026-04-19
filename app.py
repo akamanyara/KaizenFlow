@@ -2,8 +2,9 @@ from flask import Flask, session, render_template, request, redirect, flash
 from flask_session import Session
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
+from datetime import datetime
 
-from utilities import login_required, calculate_xp_and_lvl, quest_earned_xp, BASE, MULTIPLIER
+from utilities import login_required, calculate_xp_and_lvl, quest_earned_xp, calculate_and_apply_penalty, BASE, MULTIPLIER
 
 # App initialization
 app = Flask(__name__)
@@ -143,6 +144,11 @@ def logout():
 @login_required
 def index():
     
+    # Deadlines penalty for user 
+    penalty = calculate_and_apply_penalty(session["user_id"])
+    if penalty:
+        flash(f"You lost {penalty} XP due to not completing Quests on deadline!", "danger")
+        
     # Get user's data: nickname, level, current_xp
     try: 
         conn = sqlite3.connect("tracker.db")
@@ -251,12 +257,16 @@ def add_quest():
         # Get data
         title = request.form.get("title")
         description = request.form.get("description")
+        deadline = request.form.get("deadline")
         difficulty = request.form.get("difficulty")
         
         # Validate data 
         if not title:
             flash("Invalid title", "danger")
             return redirect("/add_quest")
+        
+        if not deadline:
+            deadline = None
         
         if not difficulty or difficulty not in ('EASY', 'MEDIUM', 'HARD', 'BOSS'):
             flash("Invalid difficulty", "danger")
@@ -267,8 +277,8 @@ def add_quest():
             conn = sqlite3.connect("tracker.db")
             db = conn.cursor()
             
-            db.execute("INSERT INTO quests (user_id, title, description, difficulty) VALUES (?, ?, ?, ?)",
-                       (session["user_id"], title, description, difficulty))
+            db.execute("INSERT INTO quests (user_id, title, description, difficulty, deadline) VALUES (?, ?, ?, ?, ?)",
+                       (session["user_id"], title, description, difficulty, deadline))
             conn.commit()
             
         except sqlite3.IntegrityError:
@@ -283,6 +293,47 @@ def add_quest():
         return redirect("/quests")
     else:
         return render_template("quest_add.html")
+
+
+@app.route("/deadlines")
+@login_required
+def deadlines():
+    ''' Show the deadlines for the user '''
+    
+    # Todays date
+    date = datetime.now()
+    
+    # Get data
+    try:
+        conn = sqlite3.connect("tracker.db")
+        conn.row_factory = sqlite3.Row
+        db = conn.cursor()
+        
+        db.execute("SELECT title, deadline FROM quests WHERE user_id = ? AND status = 'PENDING' AND deadline IS NOT NULL ORDER BY deadline ASC",
+                   (session["user_id"],))
+        
+        quests = db.fetchall()
+        formatted_quests = []
+        
+        if quests:
+            for quest in quests:
+                # calculate days left
+                deadline = datetime.strptime(quest["deadline"], "%Y-%m-%d")
+                days_left = deadline.date() - date.date()
+                
+                formatted_quests.append({
+                    "title": quest["title"],
+                    "deadline": quest["deadline"],
+                    "days_left": days_left.days
+                })
+                
+    finally:
+        if conn:
+            conn.close()
+    
+    today_date = date.strftime("%d %B %Y")
+    
+    return render_template("deadlines.html", quests=formatted_quests, today_date=today_date)
 
 
 # Server starter

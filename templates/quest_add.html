@@ -6,13 +6,19 @@
 
 {% block body %}
     <form action="/add_quest" method="post">
-        <div class="mb-3">
-            <input name="title" type="text" class="form-control mx-auto w-auto" placeholder="Title..">
+        <div class="mb-3 text-center">
+            <label for="titleID" class="form-label text-light">Title</label>
+            <input id="titleID" name="title" type="text" class="form-control mx-auto w-auto" placeholder="Title..">
         </div>
-        <div class="mb-3">
-            <input name="description" type="text" class="form-control mx-auto w-auto" placeholder="Description..">
+        <div class="mb-3 text-center">
+            <label for="descID" class="form-label text-light">Description (Optional)</label>
+            <input id="descID" name="description" type="text" class="form-control mx-auto w-auto" placeholder="Description..">
         </div>
-        <div class="mb-3">
+        <div class="mb-3 text-center">
+            <label for="deadlineID" class="form-label text-light">Deadline (Optional)</label>
+            <input id="deadlineID" name="deadline" type="date" class="form-control mx-auto w-auto">
+        </div>
+        <div class="mb-3 text-center">
             <select class="form-control mx-auto w-auto" name="difficulty" required>
                 <option disabled selected value="">Difficulty</option>
                 <option value="EASY">EASY</option>

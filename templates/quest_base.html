@@ -15,7 +15,10 @@
                 <div class="card bg-dark border-secondary text-light h-100 shadow">
                     <div class="card-body">
                         <h5 class="card-title text-white fw-bold">{{ quest["title"] }}</h5>
-                        <p class="card-text text-white-50">{{ quest["description"] }}</p>           
+                        <p class="card-text text-white">{{ quest["description"] }}</p>
+                        {% if quest["deadline"] != None %}
+                            <p class="card-text text-white-50">Deadline: {{ quest["deadline"] }}</p>      
+                        {% endif %}     
                         {% if quest["difficulty"] == 'EASY' %}
                             <span class="badge bg-success">EASY</span>
                         {% elif quest["difficulty"] == 'MEDIUM' %}
