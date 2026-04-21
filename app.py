@@ -366,24 +366,85 @@ def deadlines():
 def habit_tracker():
     '''Track the users daily habits'''
     todays_date = datetime.now().date().isoformat()
+    yesterdays_date = (datetime.now() - timedelta(days=1)).date().isoformat() 
     
-    conn = sqlite3.connect("tracker.db")
-    conn.row_factory = sqlite3.Row
-    db = conn.cursor()
+    try:
+        conn = sqlite3.connect("tracker.db")
+        conn.row_factory = sqlite3.Row
+        db = conn.cursor()
+        
+        # Check for the late data
+        db.execute("""  SELECT h.id, h.streak
+                        FROM habits h
+                        WHERE h.user_id = ? AND h.streak > 0
+                        AND NOT EXISTS (
+                            SELECT 1 FROM habits_history hh
+                            WHERE hh.habit_id = h.id 
+                            AND (hh.completion_date = ? OR hh.completion_date = ?))""", 
+                        (session["user_id"], todays_date, yesterdays_date))
+        late_habits = db.fetchall()
+        
+        # Update streak and penalties
+        if late_habits:
+            total_penalty = 0
+            penalty = 20 # base * 2 
+            
+            for habit in late_habits:      
+                # update streak status
+                db.execute("UPDATE habits SET streak = 0 WHERE user_id = ? AND id = ?", (session["user_id"], habit["id"]))
+                total_penalty += penalty
+                
+            # update users level and xp
+            db.execute("SELECT level, current_xp FROM users WHERE id = ?", (session["user_id"],))
+            user_data = db.fetchone()
+            
+            if user_data:
+                level = user_data["level"]
+                xp = user_data["current_xp"]
+                xp -= total_penalty
     
-    # Get the habits data
-    db.execute(""" SELECT ha.id, ha.title, ha.streak, history.completion_date 
-                   FROM habits ha
-                   LEFT JOIN habits_history history
-                   ON ha.id = history.habit_id AND history.completion_date = ?
-                   WHERE ha.user_id = ?
-               """, (todays_date, session["user_id"]))
+                # if the new xp value is negative, we drop the level
+                while xp < 0 and level > 1:
+                    level -= 1    
+                    
+                    # calculate how much xp we needed for this level, and add it to the current xp
+                    xp_to_lvl_up = int(BASE * (MULTIPLIER ** (level - 1)))
+                    xp += xp_to_lvl_up
+                    
+                # if there's still negative xp after that, at level 1 just set xp to 0
+                if xp < 0:
+                    xp = 0
 
-    habits = db.fetchall()
+                db.execute("UPDATE users SET level = ?, current_xp = ? WHERE id = ?", (level, xp, session["user_id"]))
+                flash(f"You lost your streak at {len(late_habits)}! You lost {total_penalty} XP.", "danger")
+            conn.commit()
+            
+        # Get the correct habits data
+        db.execute(""" SELECT ha.id, ha.title, ha.streak, history.completion_date 
+                    FROM habits ha
+                    LEFT JOIN habits_history history
+                    ON ha.id = history.habit_id AND history.completion_date = ?
+                    WHERE ha.user_id = ?
+                """, (todays_date, session["user_id"]))
+        habits = db.fetchall()
+        
+        # Progress bar
+        total_habits = len(habits)
+        completed_habits = 0
+        progress_percent = 0
+        
+        if total_habits > 0:
+            for habit in habits:
+                if habit["completion_date"]:
+                    completed_habits += 1
+            
+            progress_percent = int((completed_habits / total_habits) * 100)
     
-    conn.close()
+    finally:
+        if conn:
+            conn.close()
     
-    return render_template("habits.html", habits=habits)
+    return render_template("habits.html", habits=habits, progress=progress_percent)
 
 
 @app.route("/add_habit", methods=["POST"])
@@ -411,8 +472,26 @@ def add_habit():
 @app.route("/delete_habit", methods=["POST"])
 @login_required
 def delete_habit():
-    pass
-
+    
+    habit_id = request.form.get("habit_id")
+    if not habit_id:
+        flash("Invalid habit, couldn't perform the action", "danger")
+        return redirect("/habits")
+    
+    conn = sqlite3.connect("tracker.db")
+    db = conn.cursor()
+    
+    # delete the habit history 
+    db.execute("DELETE FROM habits_history WHERE habit_id IN (SELECT id FROM habits WHERE id = ? AND user_id = ?) ", (habit_id, session["user_id"]))
+    # delete the habit itself
+    db.execute("DELETE FROM habits WHERE user_id = ? AND id = ?", (session["user_id"], habit_id))
+    
+    conn.commit()
+    conn.close()
+    
+    flash("Successfully deleted the habit", "success")
+    return redirect("/habits")
+    
 
 @app.route("/complete_habit", methods=["POST"])
 @login_required
@@ -492,6 +571,8 @@ def complete_habit():
     
     return redirect("/habits")
     
+    
+#!-- NEXT SECTION --    
     
 # Server starter
 if __name__ == "__main__":

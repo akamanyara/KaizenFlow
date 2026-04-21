@@ -36,17 +36,15 @@ def calculate_xp_and_lvl(xp, lvl, earned_xp):
     
     # Calculate new xp
     new_xp = xp + earned_xp
-    
     # Calculate xp required to lvl up
     lvl_up_xp = BASE * (MULTIPLIER ** (lvl - 1))
     
     # Check for level ups
-    while True:
+    while True:  
         
         if new_xp > lvl_up_xp:
             new_xp = new_xp - lvl_up_xp
             lvl += 1
-            
             lvl_up_xp = BASE * (MULTIPLIER ** (lvl - 1))
             continue
         else:
