@@ -70,5 +70,5 @@ The app is continuously being improved. Upcoming features include:
 
 Created for learning purposes and skill development after completing the CS50 course.
 
-**Author:** Jakub Pawlusek aka Akamaara
-**Report bugs at:** [jpawlusek.dev@gmail.com](mailto:jpawlusek.dev@gmail.com)
+* **Author:** Jakub Pawlusek aka Akamaara
+* **Report bugs at:** [jpawlusek.dev@gmail.com](mailto:jpawlusek.dev@gmail.com)
