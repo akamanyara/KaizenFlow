@@ -4,3 +4,5 @@ venv/
 *.db
 __pycache__/
 flask_session/
+.venv/
+sqlite3.exe

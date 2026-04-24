@@ -9,13 +9,18 @@ MULTIPLIER = 1.20
 
 PENALTY_MULTIPLIER = 2
 
+def alert(message, type, redirect_url):
+    ''' Flash an alert message and redirect to a page '''
+    flash(message, type)
+    return redirect(redirect_url)
+
+
 def login_required(f):
     ''' Wrapper function that requires user to login '''
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if session.get("user_id") is None:
-            flash("You have to be logged in to continue!", "warning")
-            return redirect("/login")
+            return alert("You have to be logged in to continue!", "warning", "/login")
         return f(*args, **kwargs)
     return decorated_function
 
@@ -34,18 +39,18 @@ def quest_earned_xp(diff):
 def calculate_xp_and_lvl(xp, lvl, earned_xp):
     ''' Calculate the new user xp and lvl '''
     
-    # Calculate new xp
+    # Calculate new users xp
     new_xp = xp + earned_xp
     # Calculate xp required to lvl up
-    lvl_up_xp = BASE * (MULTIPLIER ** (lvl - 1))
+    xp_to_lvl_up = BASE * (MULTIPLIER ** (lvl - 1))
     
     # Check for level ups
     while True:  
         
-        if new_xp > lvl_up_xp:
-            new_xp = new_xp - lvl_up_xp
+        if new_xp > xp_to_lvl_up:
+            new_xp = new_xp - xp_to_lvl_up
             lvl += 1
-            lvl_up_xp = BASE * (MULTIPLIER ** (lvl - 1))
+            xp_to_lvl_up = BASE * (MULTIPLIER ** (lvl - 1))
             continue
         else:
             break
@@ -53,7 +58,7 @@ def calculate_xp_and_lvl(xp, lvl, earned_xp):
     return int(new_xp), lvl
 
 
-def calculate_and_apply_penalty(user_id):
+def calculate_and_update_deadlines_penalties(user_id):
     ''' Calculate and apply penalties for players '''
     conn = sqlite3.connect("tracker.db")
     conn.row_factory = sqlite3.Row
@@ -109,4 +114,3 @@ def calculate_and_apply_penalty(user_id):
     
     # inform the user
     return total_penalty
-    

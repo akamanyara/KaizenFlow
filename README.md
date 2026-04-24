@@ -1,18 +1,23 @@
-# LevelUp - Gamified Life Tracking App
-## Version v1.0
+<p align="center">
+  <img src="kaizenflow_logo.png" alt="Kaizen Flow Logo" width="250">
+</p>
+
+# KaizenFlow - Gamified Life Tracking App
+## Version v1.1
 
 > Change your everyday boring tasks into quests just like in RPG games. This app lets you track your tasks and earn EXP for completing them. Earn EXP to Level Up your account and track your life improvement!
 
 ## About Project
 
-LevelUp is my first Full-Stack project built with Flask from scratch. I decided to begin this project to gather all my Real Life tracking needs into one gamified platform. Jumping between different apps, where not every app is available on different devices, was frustrating. So, instead of a boring check-list, users can earn experience and level up their "character" by working. This visualizes the progress and consistency of your daily efforts!
+KaizenFlow is my first Full-Stack project built with Flask from scratch. I decided to begin this project to gather all my Real Life tracking needs into one gamified platform. Jumping between different apps, where not every app is available on different devices, was frustrating. So, instead of a boring check-list, users can earn experience and level up their "character" by working. This visualizes the progress and consistency of your daily efforts!
 
 This product is currently a Minimum Viable Product (MVP). The main purpose was to learn Full-Stack development, database management, and web security.
 
 ## Features
 
 * **Secure Authentication:** User registration, login, and session management (Flask-Session). Routes are protected against unauthorized access. Passwords are securely hashed using the Werkzeug library.
-* **Quest Management (CRUD):** Add, view, and complete tasks. Each quest has a specific difficulty level (EASY, MEDIUM, HARD, BOSS) which determines the reward.
+* **Quest Management (CRUD):** Add, view, and complete tasks. Each quest has a specific difficulty level (EASY, MEDIUM, HARD, BOSS) which determines the reward. Also you can view the deadlines towards your quests so you will never miss to complete them.
+* **Habit Tracker:** Create, track and complete daily habit tasks to earn XP and level up your life.
 * **RPG Engine (Leveling System):** Custom algorithm calculating Experience Points (EXP) required for character progression, based on a logarithmic scale (each level requires exponentially more EXP).
 * **Commander's Dashboard:** Main hub displaying the user's current level, gathered EXP, and a real-time animated Progress Bar built with Bootstrap.
 * **Dynamic Frontend:** User interface built with Bootstrap 5 and Jinja2, featuring a Dark Mode aesthetic and dynamic element coloring based on task status and difficulty.
@@ -30,7 +35,7 @@ If you want to run this project on your local machine, follow these steps:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/akamanyara/LevelUp.git
+   git clone https://github.com/akamanyara/KaizenFlow.git
    ```
 
 2. Navigate to the project directory:
@@ -59,7 +64,6 @@ The app is continuously being improved. Upcoming features include:
 
 * [x] Adding Deadlines to Quests.
 * [x] Adding Habit Tracker.
-* [ ] "Quick Notes" module for sudden ideas.
 * [ ] Specialized tracking modules (Budget Tracker, Fit Tracker (Gym split and Diet shopping list))
 
 ---

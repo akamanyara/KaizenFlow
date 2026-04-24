@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Habits
+    Dailies
 {% endblock %}
 
 {% block body %}
@@ -18,7 +18,7 @@
         </div>
     </div>
 
-    <h2 class="mb-4 text-center fw-bold text-light">Habit Tracker</h2>
+    <h2 class="mb-4 text-center fw-bold text-light">Daily Quests Tracker</h2>
     <div class="row justify-content-center mb-4">
         <div class="col-md-8 col-lg-6">
             <form action="/add_habit" method="post" class="d-flex gap-2">
@@ -45,7 +45,7 @@
                             {% if habit["completion_date"] %}
                                 <button type="button" class="btn btn-success disabled">✔ Done</button>
                             {% else %}
-                                <button type="submit" class="btn btn-outline-light">⚪ Do it</button>
+                                <button type="submit" class="btn btn-outline-light">Earn XP</button>
                             {% endif %}
                         </form>
                         
@@ -57,7 +57,7 @@
                     
                 </div>
                 {% else %}
-                    <p class="text-center text-white-50">You have no habits yet. Start building your routine above!</p>
+                    <p class="text-center text-white-50">You have no daily quests yet. Start building your routine above!</p>
                 {% endfor %}
             </div>
         </div>

@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 from datetime import datetime, timedelta
 
-from utilities import login_required, calculate_xp_and_lvl, quest_earned_xp, calculate_and_apply_penalty, BASE, MULTIPLIER
+from utilities import alert, login_required, calculate_xp_and_lvl, quest_earned_xp, calculate_and_update_deadlines_penalties, BASE, MULTIPLIER
 
 # App initialization
 app = Flask(__name__)
@@ -31,24 +31,19 @@ def register():
 
         # Data validation
         if not email or "@" not in email:
-            flash("Enter email correctly", "danger")
-            return redirect("/register")
+            return alert("Enter email correctly", "danger", "/register")
         
         if not password:
-            flash("Enter the password", "danger")
-            return redirect("/register")
+            return alert("Enter the password", "danger", "/register")
         
         if not confirmation:
-            flash("Enter the confirmation password", "danger")
-            return redirect("/register")
+            return alert("Enter the confirmation password", "danger", "/register")
         
         if not nickname:
-            flash("Enter the nickname", "danger")
-            return redirect("/register")
+            return alert("Enter the nickname", "danger", "/register")
         
         if password != confirmation:
-            flash("Confirmation does not match the password", "danger")
-            return redirect("/register")
+            return alert("Confirmation does not match the password", "danger", "/register")
         
         # Hash the password
         hashed_password = generate_password_hash(password)
@@ -66,15 +61,13 @@ def register():
             connection.commit()
         
         except sqlite3.IntegrityError:
-            flash("Account with this email already exist", "warning")
-            return redirect("/register")
+            return alert("Account with this email already exist", "warning", "/register")
         
         finally:
             if connection:
                 connection.close()
         
-        flash("Account created successfuly", "success")
-        return redirect("/login") 
+        return alert("Account created successfuly", "success", "/login")
     
     else:
         return render_template("register.html")
@@ -94,12 +87,10 @@ def login():
 
         # Validation
         if not email or "@" not in email:
-            flash("Incorrect email", "danger")
-            return redirect("/login")
+            return alert("Incorrect email", "danger", "/login")
 
         if not password:
-            flash("Incorrect password", "danger")
-            return redirect("/login")
+            return alert("Incorrect password", "danger", "/login")
 
         # Check for data in user data base
         try:
@@ -117,14 +108,12 @@ def login():
         
         # Check for the password correctness
         if user_data is None or not check_password_hash(user_data["password_hash"], password):
-            flash("Incorrect email or password", "danger")
-            return redirect("/login")
+            return alert("Incorrect email or password", "danger", "/login")
         
         # Create a session
         session["user_id"] = user_data["id"]
         
-        flash("Logged in", "success")
-        return redirect("/")
+        return alert("Logged in", "success", "/")
     
     else:
         return render_template("login.html")
@@ -137,7 +126,15 @@ def logout():
     
     # clear the users session
     session.clear()
-    return redirect("/login")
+    return alert("Successfully logged out.", "success", "/login")
+
+
+@app.route("/guide")
+@login_required
+def guide():
+    ''' Show rules and important information to user '''
+    
+    return render_template("guide.html")
 
 
 @app.route("/")
@@ -145,7 +142,7 @@ def logout():
 def index():
     
     # Deadlines penalty for user 
-    penalty = calculate_and_apply_penalty(session["user_id"])
+    penalty = calculate_and_update_deadlines_penalties(session["user_id"])
     if penalty:
         flash(f"You lost {penalty} XP due to not completing Quests on deadline!", "danger")
         
@@ -204,8 +201,7 @@ def complete_quest():
     
     quest_id = request.form.get("quest_id")
     if not quest_id:
-        flash("Invalid quest", "danger")
-        return redirect("/quests")
+        return alert("Invalid quest", "danger", "/quests")
     
     try:
         conn = sqlite3.connect("tracker.db")
@@ -238,15 +234,13 @@ def complete_quest():
         conn.commit()
         
     except sqlite3.Error:
-        flash("Error while updating quest status", "danger")
-        return redirect("/quests")
+        return alert("Error while updating quest status", "danger", "/quests")
     
     finally:
         if conn:
             conn.close()
 
-    flash(f"Quest completed! You earned {earned_xp}xp!", "success")
-    return redirect("/quests")
+    return alert(f"Quest completed! You earned {earned_xp}xp!", "success", "/quests")
 
 
 @app.route("/delete_quest", methods=["POST"])
@@ -256,8 +250,7 @@ def delete_quest():
     
     quest_id = request.form.get("quest_id")
     if not quest_id:
-        flash("Couldn't find the quest", "warning")
-        return redirect("/quests")
+        return alert("Couldn't find the quest", "warning", "/quests")
     
     # Delete quest from database
     conn = sqlite3.connect("tracker.db")
@@ -268,8 +261,7 @@ def delete_quest():
     conn.commit()
     conn.close()
     
-    flash("Successfully removed quest", "success")
-    return redirect("/quests")
+    return alert("Successfully removed quest", "success", "/quests")
     
 
 @app.route("/add_quest", methods=["GET", "POST"])
@@ -286,15 +278,13 @@ def add_quest():
         
         # Validate data 
         if not title:
-            flash("Invalid title", "danger")
-            return redirect("/add_quest")
+            return alert("Invalid title", "danger", "/add_quest")
         
         if not deadline:
             deadline = None
         
         if not difficulty or difficulty not in ('EASY', 'MEDIUM', 'HARD', 'BOSS'):
-            flash("Invalid difficulty", "danger")
-            return redirect("/add_quest")
+            return alert("Invalid difficulty", "danger", "/add_quest")
         
         # Save the data into database
         try:
@@ -306,15 +296,13 @@ def add_quest():
             conn.commit()
             
         except sqlite3.IntegrityError:
-            flash("There was a problem creating a task", "danger")
-            return redirect("/add_quest")
+            return alert("There was a problem creating a task", "danger", "/add_quest")
         
         finally:
             if conn:
                 conn.close()
         
-        flash("Created the task successfully", "success")
-        return redirect("/quests")
+        return alert("Created the task successfully", "success", "/quests")
     else:
         return render_template("quest_add.html")
 
@@ -453,8 +441,7 @@ def add_habit():
     
     title = request.form.get("title")
     if not title:
-        flash("Invalid habit name.", "danger")
-        return redirect("/habits")
+        return alert("Invalid habit name.", "danger", "/habits")
     
     # add the habit into the database
     conn = sqlite3.connect("tracker.db")
@@ -465,8 +452,7 @@ def add_habit():
     conn.commit()
     conn.close()
         
-    flash("Added habit successfully", "success")
-    return redirect("/habits")
+    return alert("Added habit successfully", "success", "/habits")
 
 
 @app.route("/delete_habit", methods=["POST"])
@@ -475,8 +461,7 @@ def delete_habit():
     
     habit_id = request.form.get("habit_id")
     if not habit_id:
-        flash("Invalid habit, couldn't perform the action", "danger")
-        return redirect("/habits")
+        return alert("Invalid daily quest, couldn't perform the action", "danger", "/habits")
     
     conn = sqlite3.connect("tracker.db")
     db = conn.cursor()
@@ -489,8 +474,7 @@ def delete_habit():
     conn.commit()
     conn.close()
     
-    flash("Successfully deleted the habit", "success")
-    return redirect("/habits")
+    return alert("Successfully deleted daily quest", "success", "/habits")
     
 
 @app.route("/complete_habit", methods=["POST"])
@@ -501,8 +485,7 @@ def complete_habit():
     # get habit id
     habit_id = request.form.get("habit_id")
     if not habit_id:
-        flash("Invalid habid id", "danger")
-        return redirect("/habits")
+        return alert("Invalid daily id", "danger", "/habits")
 
     # get todays and yesterdays date
     todays_date = datetime.now().date().isoformat()
@@ -560,18 +543,16 @@ def complete_habit():
             db.execute("UPDATE users SET level = ?, current_xp = ? WHERE id = ?", (new_lvl, new_xp, session["user_id"]))
         
         conn.commit()
-        flash(f"Habit completed, you earned {earned_xp} XP! Streak: {users_streak}", "success")
+        return alert(f"Daily Quest completed, you earned {earned_xp} XP! Streak: {users_streak}", "success", "/habits")
     
     except sqlite3.IntegrityError:
-        flash("You already completed this habit today!", "warning")
+        return alert("You already completed this quest today!", "warning", "/habits")
         
     finally:
         if conn:
             conn.close()
     
-    return redirect("/habits")
-    
-    
+
 #!-- NEXT SECTION --    
     
 # Server starter

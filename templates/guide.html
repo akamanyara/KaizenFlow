@@ -1,0 +1,163 @@
+{% extends "layout.html" %} 
+
+{% block title %}
+    Guide - Kaizen Flow
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5 mb-5 text-light">
+    
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold">Player's Guide</h1>
+        <p class="lead text-white-50">Master your routine, beat the deadlines, and level up your life.</p>
+    </div>
+
+    <section class="mb-5">
+        <h2 class="h3 border-bottom border-secondary pb-2 mb-4">I. How to Start</h2>
+        <div class="row g-4 text-center">
+            
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm bg-dark border border-secondary text-light">
+                    <div class="card-body">
+                        <div class="display-4 text-primary mb-3"><i class="fas fa-bullseye"></i></div>
+                        <h5 class="card-title fw-bold">1. Set the Goals</h5>
+                        <p class="card-text text-white-50">Add one-time Quests and everyday Dailies you want to work on.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm bg-dark border border-secondary text-light">
+                    <div class="card-body">
+                        <div class="display-4 text-danger mb-3"><i class="fas fa-fire"></i></div>
+                        <h5 class="card-title fw-bold">2. Stay Disciplined</h5>
+                        <p class="card-text text-white-50">Complete quests, build unbreakable daily streaks, and avoid deadlines.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm bg-dark border border-secondary text-light">
+                    <div class="card-body">
+                        <div class="display-4 text-success mb-3"><i class="fas fa-angle-double-up"></i></div>
+                        <h5 class="card-title fw-bold">3. Level Up!</h5>
+                        <p class="card-text text-white-50">Earn XP points, level up your account, and track your real-life progress.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="mb-5">
+        <h2 class="h3 border-bottom border-secondary pb-2 mb-4">II. Rules & Economy</h2>
+        <div class="row g-4">
+            
+            <div class="col-md-4">
+                <div class="card shadow-sm bg-dark border border-secondary text-light">
+                    <div class="card-header border-secondary fw-bold">
+                        <i class="fas fa-coins text-success me-2"></i>Quest Rewards
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item bg-dark border-secondary text-light d-flex justify-content-between align-items-center">
+                            EASY <span class="badge bg-success rounded-pill">+20 XP</span>
+                        </li>
+                        <li class="list-group-item bg-dark border-secondary text-light d-flex justify-content-between align-items-center">
+                            MEDIUM <span class="badge bg-primary rounded-pill">+40 XP</span>
+                        </li>
+                        <li class="list-group-item bg-dark border-secondary text-light d-flex justify-content-between align-items-center">
+                            HARD <span class="badge bg-warning text-dark rounded-pill">+80 XP</span>
+                        </li>
+                        <li class="list-group-item bg-dark border-secondary text-light d-flex justify-content-between align-items-center fw-bold">
+                            BOSS <span class="badge bg-danger rounded-pill">+200 XP</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm bg-dark border border-secondary text-light">
+                    <div class="card-header border-secondary fw-bold">
+                        <i class="fas fa-bolt text-primary me-2"></i>Dailies Streak Bonus
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item bg-dark border-secondary text-light d-flex justify-content-between align-items-center">
+                            3 Days Streak <span class="badge bg-primary rounded-pill">1.1x XP</span>
+                        </li>
+                        <li class="list-group-item bg-dark border-secondary text-light d-flex justify-content-between align-items-center">
+                            7 Days Streak <span class="badge bg-primary rounded-pill">1.5x XP</span>
+                        </li>
+                        <li class="list-group-item bg-dark border-secondary text-light d-flex justify-content-between align-items-center">
+                            14 Days Streak <span class="badge bg-primary rounded-pill">1.75x XP</span>
+                        </li>
+                        <li class="list-group-item bg-dark border-secondary text-light d-flex justify-content-between align-items-center fw-bold">
+                            21+ Days Streak <span class="badge bg-primary rounded-pill">2.0x XP</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm bg-dark border border-secondary text-light">
+                    <div class="card-header border-secondary fw-bold">
+                        <i class="fas fa-skull text-danger me-2"></i>Penalties
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item bg-dark border-secondary text-light">
+                            <strong>Missed Daily:</strong> <br> <span class="text-danger">-20 XP</span> & Streak resets to 0.
+                        </li>
+                        <li class="list-group-item bg-dark border-secondary text-light">
+                            <strong>Missed Deadline:</strong> <br> Heavy XP loss based on penalty multiplier.
+                        </li>
+                        <li class="list-group-item bg-dark border-secondary text-danger fw-bold text-center">
+                            WARNING: Falling below 0 XP causes a Level Down!
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="mb-5">
+        <h2 class="h3 border-bottom border-secondary pb-2 mb-4">III. Terminology</h2>
+        <div class="list-group shadow-sm">
+            <div class="list-group-item bg-dark border border-secondary rounded p-4 mb-2 text-light">
+                <h5 class="mb-1 text-white fw-bold"><i class="fas fa-scroll me-2"></i>Quests</h5>
+                <p class="mb-0 text-white-50">One-time challenges (e.g., "Complete CS50 Project") with a set difficulty level. Once completed, they are gone.</p>
+            </div>
+            <div class="list-group-item bg-dark border border-secondary rounded p-4 mb-2 text-light">
+                <h5 class="mb-1 text-white fw-bold"><i class="fas fa-calendar-check me-2"></i>Dailies</h5>
+                <p class="mb-0 text-white-50">Daily quests designed to build a routine. Complete them consecutively to build a streak and unlock massive XP multipliers.</p>
+            </div>
+            <div class="list-group-item bg-dark border border-secondary rounded p-4 text-light">
+                <h5 class="mb-1 text-danger fw-bold"><i class="fas fa-hourglass-end me-2"></i>Deadlines</h5>
+                <p class="mb-0 text-white-50">The final completion date for a Quest. Late submissions or ignored deadlines will trigger a severe XP penalty.</p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="card bg-dark text-white shadow-lg border border-secondary rounded-3">
+            <div class="card-body p-5">
+                <h3 class="fw-bold mb-3">About the Project</h3>
+                <p class="lead text-white-50">
+                    This application was built as a Final Project for <strong class="text-light">CS50x</strong>.
+                </p>
+                <p class="text-white-50">
+                    The goal of this project is to gamify the daily grind towards self-improvement by completing tasks on time and maintaining daily habits. The leveling system is designed to make you enjoy the process more by visualizing your actual progress.
+                </p>
+                <hr class="bg-secondary my-4">
+                <h5 class="mb-3">Tech Stack:</h5>
+                <div>
+                    <span class="badge bg-light text-dark fs-6 me-2 mb-2"><i class="fab fa-python text-primary"></i> Python</span>
+                    <span class="badge bg-light text-dark fs-6 me-2 mb-2"><i class="fas fa-pepper-hot text-danger"></i> Flask</span>
+                    <span class="badge bg-light text-dark fs-6 me-2 mb-2"><i class="fas fa-database text-secondary"></i> SQLite</span>
+                    <span class="badge bg-light text-dark fs-6 me-2 mb-2"><i class="fab fa-bootstrap text-purple" style="color: #7952b3;"></i> Bootstrap 5</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+{% endblock %}
