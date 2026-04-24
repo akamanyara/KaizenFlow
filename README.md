@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="kaizenflow_logo.png" alt="Kaizen Flow Logo" width="250">
+  <img src="static/kaizenflow_logo.png" alt="Kaizen Flow Logo" width="250">
 </p>
 
 # KaizenFlow - Gamified Life Tracking App
